@@ -1,0 +1,163 @@
+<html>
+
+<head>
+ <!-- This is an HTML comment -->
+ <!-- Below we are grabbing three.js and some helper stuff for using the camera -->
+ <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+  <script src = "orbitControls.js"></script>
+  
+	<meta charset="utf-8">
+	<style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+	<script>
+
+// First we need to set up some objects and initialise them.
+// Three.js provides a canvas automatically so we don't need that. 
+// This creates a camera. It has a field of view, a size, a near clipping plane and a far clipping plane      
+	var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000); 
+ 
+	var scene = new THREE.Scene();
+      
+   var geometry = new THREE.BoxGeometry(1, 1, 1);
+	var myTextureLoader = new THREE.TextureLoader();
+	var myTexture = myTextureLoader.load('sgpic10.jpg');     
+	var material = new THREE.MeshBasicMaterial({map: myTexture});
+   var mesh = new THREE.Mesh(geometry, material);   
+      
+   //background   
+   var geometrySky = new THREE.BoxGeometry(30,30,30);
+	var myTextureLoader = new THREE.TextureLoader();
+	var mySkyTexture = myTextureLoader.load('liquid2.jpg');    
+	var skyMaterial = new THREE.MeshBasicMaterial({map: mySkyTexture,side:THREE.BackSide});
+   var sky = new THREE.Mesh(geometrySky, skyMaterial); 
+      
+    //plane
+   var geometryPlane = new THREE.PlaneGeometry(30,30);
+	var myTextureLoader = new THREE.TextureLoader();
+	var myPlaneTexture = myTextureLoader.load('liquid3.jpg');    
+	var planeMaterial = new THREE.MeshBasicMaterial({map: myPlaneTexture});
+   var plane = new THREE.Mesh(geometryPlane, planeMaterial);   
+      
+      //torus
+   var geometryTorus = new THREE.TorusKnotGeometry( 0.5, 0.2, 200, 30 );
+	var myTextureLoader = new THREE.TextureLoader();
+	var myTorusTexture = myTextureLoader.load('cloud.jpg');    
+	var torusMaterial = new THREE.MeshBasicMaterial({map: myTorusTexture});
+   var torus = new THREE.Mesh(geometryTorus, torusMaterial); 
+      
+      //neon
+   var geometryNeon = new THREE.CylinderGeometry( 0.03, 0.03, 30, 6 );
+   var myTextureLoader = new THREE.TextureLoader();
+	var myNeonTexture = myTextureLoader.load('light2.jpg');    
+	var neonMaterial = new THREE.MeshBasicMaterial({color:	"rgb(255,255,255)"});
+   var neon = new THREE.Mesh(geometryNeon, neonMaterial); 
+      
+      //box
+   var geometryBox = new THREE.BoxGeometry( 3, 3, 3 );
+	var myTextureLoader = new THREE.TextureLoader();
+	var myBoxTexture = myTextureLoader.load('boli.jpg');    
+	var boxMaterial = new THREE.MeshBasicMaterial({map: myBoxTexture});
+   var box = new THREE.Mesh(geometryBox, boxMaterial); 
+     
+      //cone
+   var geometryCone = new THREE.ConeGeometry( 3, 10, 4 );
+	var myTextureLoader = new THREE.TextureLoader();
+	var myConeTexture = myTextureLoader.load('liquid.jpg');    
+	var coneMaterial = new THREE.MeshBasicMaterial({map: myConeTexture});
+   var cone = new THREE.Mesh(geometryCone, coneMaterial); 
+      
+      //circle
+   var geometryO = new THREE.TorusGeometry( 6, 0.5, 16, 100 );
+   var myTextureLoader = new THREE.TextureLoader();
+	var myOTexture = myTextureLoader.load('liquid5.jpg');    
+	var OMaterial = new THREE.MeshBasicMaterial({map: myOTexture});
+   var O = new THREE.Mesh(geometryO, OMaterial); 
+
+      
+	var light = new THREE.DirectionalLight("rgb(255,255,255)");
+// Now we can create our renderer. Thiis renders the scene.      
+	var renderer = new THREE.WebGLRenderer();
+
+// Now we can set some variables for the objects.
+	camera.position.z = 2;
+// Notice we can also us the set method to position things.
+    //light.position.z = 2;
+	light.position.set(0,2,2);
+// Now we add the mesh and the light to the scene.
+	scene.add(sky);
+   scene.add(plane);
+   scene.add(torus);
+   scene.add(neon);
+   scene.add(O);
+  // scene.add(cone);
+	scene.add(light);
+      
+// This is to make sure that the scene understands the resolution of the device we are on.
+	renderer.setPixelRatio(window.devicePixelRatio);
+// We can also set the size of the render window
+	renderer.setSize(window.innerWidth, window.innerHeight);
+// Finally we want to connect the renderer to the HTML document
+	document.body.appendChild(renderer.domElement);
+// And make sure that when the page is resized, everything gets updated 
+	window.addEventListener('resize', onWindowResize, false); 
+    var controls = new THREE.OrbitControls (camera, renderer.domElement);
+
+//  Now we can have a draw loop.    
+function draw() {
+ 	//mesh.rotation.x += 0.005;
+  	mesh.position.x = -0.5;
+	sky.rotation.y+= 0.0003;
+   plane.rotation.x = -1 * Math.PI/2;
+   plane.position.y = -3;
+   plane.rotation.x-= 0.0001;
+   camera.position.z = 5;
+  
+   torus.position.y = 1;
+   torus.position.z = 1;
+   torus.rotation.y += 0.001;
+   torus.rotation.x -= 0.001;
+   neon.rotation.z += -0.001;
+   neon.rotation.y -= -0.001;
+  
+   box.position.z = -8;
+   box.position.x = -3;
+   box.position.y = -0.5;
+   box.rotation.y+= 0.001;
+  
+   cone.position.z = -8;
+   cone.position.x = 7;
+   cone.position.y = -0.5;
+   cone.rotation.y+= 0.001;
+  
+   O.position.z = -10;
+   O.position.x = 0;
+   O.position.y = 2;
+   O.rotation.z+= 0.001;
+  
+    controls.update();
+	renderer.render(scene, camera);
+	requestAnimationFrame(draw);
+}
+
+// This is the thing that does the resizing      
+function onWindowResize() {
+	camera.aspect = window.innerWidth / 		window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+}    
+
+// Finally, call the draw loop.      
+requestAnimationFrame(draw());
+      
+	</script>
+</body>
+
+</html>
