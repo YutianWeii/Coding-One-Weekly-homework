@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+    <canvas id="myCanvas2" width="400" height="400"></canvas>
+    <script>
+      
+        var mouseX = 1;
+        var mouseY = 1;
+        var imageObj = new Image();
+        imageObj.src = "poster.png";
+
+        var canvas = document.getElementById('myCanvas');
+        var canvas2 = document.getElementById('myCanvas2');
+        canvas.addEventListener('mousemove', getMouse, false);
+
+        var context = canvas.getContext('2d');
+        var context2 = canvas2.getContext('2d');
+        var imageWidth = imageObj.height;
+        var imageHeight = imageObj.width;
+
+        context2.drawImage(imageObj, 0, 0);
+
+        var imageData = context2.getImageData(0, 0, imageWidth, imageHeight);
+        var data = imageData.data;
+        var imageData2 = context.getImageData(0, 0, imageWidth, imageHeight);
+        //var imageData2 = imageData;
+      
+      
+      //change them to change the effect
+      const n = [0.0625, 0.125, 0.0625,
+              0.125, 0.25, 0.125,
+              0.0625, 0.125, 0.0625];
+
+            
+      var draw = function() {
+    
+            // iterate over all pixels
+        for(var i = 0; i < imageHeight; i++) {
+          // loop through each row
+          for(var j = 0; j < imageWidth; j++) {
+          
+            var pixel1 = imageWidth * (i-1) + j-1; //upper left
+            var pixel2 = imageWidth * (i-1) + j ; //up
+            var pixel3 = imageWidth * (i-1) + j+1; //upper right
+            var pixel4 = imageWidth * (i) + j-1 ; //left
+            var pixel5 = imageWidth * (i) + j ; //origin
+            var pixel6 = imageWidth * (i) + j+1 ; //right
+            var pixel7 = imageWidth * (i+1) + j-1 ; //lower left
+            var pixel8 = imageWidth * (i+1) + j ; //low
+            var pixel9 = imageWidth * (i+1) + j+1 ; //lower right
+             
+            
+            if (data[((imageWidth * i) + j) * 4] > mouseX) {
+            
+            imageData2.data[((imageWidth * i) + j) * 4] = data[((imageWidth * i) + j) * 4];
+            imageData2.data[((imageWidth * i) + j) * 4+1] = data[((imageWidth * i) + j) * 4 + 1];
+            imageData2.data[((imageWidth * i) + j) * 4+2] = data[((imageWidth * i) + j) * 4 + 2];
+            imageData2.data[((imageWidth * i) + j) * 4+3] = data[((imageWidth * i) + j) * 4 + 3];
+            
+                
+            }
+            else {
+                
+            imageData2.data[((imageWidth * i) + j) * 4] = (n[0] *(data[ pixel1 * 4])) + (n[1] *(data[ pixel2 * 4])) + (n[2] *(data[ pixel3 * 4])) +  (n[3] *(data[ pixel4 * 4])) + (n[4] *(data[pixel5 * 4])) + (n[5] *(data[ pixel6 * 4])) + (n[6] *(data[ pixel7 * 4])) + (n[7] *(data[ pixel8 * 4])) + (n[8] *(data[ pixel9 * 4]));
+            
+            imageData2.data[((imageWidth * i) + j) * 4+1] = (n[0] *(data[ pixel1 * 4 +1])) + (n[1] *(data[ pixel2 * 4 +1])) + (n[2] *(data[ pixel3 * 4 +1])) +  (n[3] *(data[ pixel4 * 4 +1])) + (n[4] *(data[pixel5 * 4 +1])) + (n[5] *(data[ pixel6 * 4 +1])) + (n[6] *(data[ pixel7 * 4 +1])) + (n[7] *(data[ pixel8 * 4 +1])) + (n[8] *(data[ pixel9 * 4 +1]));
+            
+            imageData2.data[((imageWidth * i) + j) * 4+2] = (n[0] *(data[ pixel1 * 4 +2])) + (n[1] *(data[ pixel2 * 4 +2])) + (n[2] *(data[ pixel3 * 4 +2])) +  (n[3] *(data[ pixel4 * 4 +2])) + (n[4] *(data[pixel5 * 4 +2])) + (n[5] *(data[ pixel6 * 4 +2])) + (n[6] *(data[ pixel7 * 4 +2])) + (n[7] *(data[ pixel8 * 4 +2])) + (n[8] *(data[ pixel9 * 4 +2]));
+                                 
+                
+            }
+          }
+        }
+    
+        context.putImageData(imageData2,0,0);
+		requestAnimationFrame(draw);
+      };
+ 
+ 
+      
+		requestAnimationFrame(draw);
+ 
+          function getMouse(mousePosition) {
+                mouseX = mousePosition.layerX;
+                mouseY = mousePosition.layerY;
+        }     
+
+    </script>
+  </body>
+</html>     
