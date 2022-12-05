@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  background-color: #92a8d1;
+  background-color: rgba(70, 70, 250, 0.3); 
+}
+</style>
+</head>
+  
+<body>
+
+    <canvas></canvas>
+
+    <script type="text/javascript">
+
+        var mouseX ;
+        var mouseY ;
+     
+        var TWO_PI = Math.PI * 2;
+
+        var canvas = document.querySelector("canvas");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      
+        var context = canvas.getContext("2d");
+
+        canvas.addEventListener('mousemove', getMouse, false);
+
+        //here's our function 'getMouse'.
+        function getMouse(mousePosition) {
+                mouseX = mousePosition.layerX;
+                mouseY = mousePosition.layerY;
+        }
+
+      
+        function draw() {
+         
+	   	var segments = 1000;
+	   	var spacing = TWO_PI / segments;
+      //var spacing = Math.random();
+		 var radius = 300;
+        //var radius;
+      var position = 300;
+          var f;
+          
+          if ( (mouseX+mouseY)%4 == 0 ){
+            f = 0;
+          }else{
+            f = 20;
+          }
+         
+             
+		context.clearRect(0,0, canvas.width, canvas.height);
+      context.fillStyle = "#000000"; 
+     
+      context.fill();
+
+		context.beginPath();
+
+		for (var i = 0; i < segments; i++) {
+
+		//context.strokeStyle = "#FF0000";
+      context.strokeStyle = 'rgb('+mouseX+',' +mouseY+',150)';
+      //context.fillStyle = 'rgb(' +mouseX+' ,' +mouseY+',200)';
+
+       // var x = Math.sin(spacing * i * (mouseX/10)) * Math.cos(spacing * i * (mouseY/10)) * radius;
+       // var y = Math.cos(spacing * i* (mouseX/10)) * Math.cos(spacing * i * (mouseY/10)) * radius;  
+        var x = Math.sin(mouseX/f)* Math.cos(spacing * i * (mouseY/f)) * radius;        
+        var y = Math.cos(spacing * i* (mouseX/f)) * Math.cos((spacing * i * mouseY/f)) * radius;  
+      
+	    context.lineTo(x+radius,y+radius); 
+          
+        
+            }
+            context.fill();      
+            context.stroke(); 			
+            context.closePath();
+			requestAnimationFrame(draw);
+        }
+
+        //request the first animation frame
+        requestAnimationFrame(draw);
+       
+    </script>
+
+</body>
+
+</html>
