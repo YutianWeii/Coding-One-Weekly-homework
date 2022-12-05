@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <script src = "https://mimicproject.com/libs/maximilian.js"></script>
+ <link href="https://fonts.googleapis.com/css?family=Staatliches" rel="stylesheet">  
+ <script src = "https://rawgit.com/nexus-js/ui/master/dist/NexusUI.js"></script>
+  <link rel="stylesheet" href="styleCSS" />
+</head>
+  
+<body>
+  <div>
+    <div id="title">Maximilian.js Sample</div>
+    <div id="subtitle">maxiSample.play</div>
+  <div><button id="playButton">Play</button></div>
+  <div><button id="stopButton" style="display:none">Stop</button></div>
+</div>
+<div id="oscilloscope"></div>
+<div id="spectrogram"></div>
+
+  <script src="samples.js"></script>
+  
+<script language="javascript" type="text/javascript">
+	const playButton = document.getElementById('playButton');
+
+  	 var maxi = maximilian();
+	 var maxiEngine = new maxi.maxiAudio();
+    var sample = new maxi.maxiSample();
+    var kick = new maxi.maxiSample();
+    var snare = new maxi.maxiSample();
+    var didi = new maxi.maxiSample();
+    var hat = new maxi.maxiSample();
+    var bass = new maxi.maxiSample();
+    var myOsc = new maxi.maxiOsc();
+    var myOsc2 = new maxi.maxiOsc();
+    var myClock = new maxi.maxiClock();
+  
+    var scratch = 0;
+    var counter = 0;
+    var kickGain = 0;
+    var snareGain = 0;
+    var sampleGain = 0;
+  
+    myClock.setTempo(120);
+    myClock.setTicksPerBeat(4);
+  	 var oscilloscope,spectrogram;
+	
+	let playAudio = () => {
+	  
+	  playButton.style.display="none";
+	  
+	  maxiEngine.init();
+	  
+  	maxiEngine.loadSample("loop.wav", sample);
+  	//maxiEngine.loadSample("kick1.m4a", kick);
+  //	maxiEngine.loadSample("Analysis-Snare.m4a", snare);
+
+  	maxiEngine.loadSample("1.wav", kick);
+  	maxiEngine.loadSample("3.wav", snare);
+   maxiEngine.loadSample("bass.wav", bass);
+   maxiEngine.loadSample("hat.wav", hat);
+      
+    //kick.setSample(maxi.maxiTools.getArrayAsVectorDbl(kick));
+    //snare.setSample(maxi.maxiTools.getArrayAsVectorDbl(snare));
+  // hat.setSample(maxi.maxiTools.getArrayAsVectorDbl(hat));
+   
+      
+     Nexus.context = maxiEngine.context;
+	  oscilloscope = new Nexus.Oscilloscope('oscilloscope', {'size': [400,100]}).connect(maxiEngine.maxiAudioProcessor);
+    spectrogram = new Nexus.Spectrogram('spectrogram', {'size': [400,100]}).connect(maxiEngine.maxiAudioProcessor);
+  
+     
+		maxiEngine.play = function() {
+          
+      myClock.ticker();
+        
+        if (myClock.tick) {     
+            scratch=0;
+            counter++;
+        }
+
+        if (myClock.tick && counter% 16 == 4 && Math.random() > 0.8) {
+            kick.trigger(); 
+            kickGain = 1;
+        }
+        if (myClock.tick && counter% 16 == 10 && Math.random() < 0.2) {
+            kick.trigger(); 
+            kickGain = 0.5;
+        }
+          
+          if (myClock.tick && counter% 16 == 0 && Math.random() > 0.8) {
+            sample.trigger();             
+        }
+
+        if (myClock.tick && Math.random()> 0.7 && counter% 16 == 8) {   
+           // sample.trigger();
+            snare.trigger(); 
+            snareGain = 2;
+        }
+         
+       
+           if( myClock.tick && Math.random()< 0.1){
+            //snare.trigger();
+            bass.trigger();
+        }
+          
+          if (myClock.tick && counter% 16 == 12 && Math.random()< 0.1) { 
+            hat.trigger();
+                       
+        }
+        
+      // var out = kick.playOnce() * kickGain + snare.playOnce() * snareGain + sample.playOnce(0.25) + bass.playOnce() + myOsc.saw(8) + hat.playOnce();
+          var out = kick.playOnce() * kickGain + sample.playOnce() + snare.playOnce() * snareGain + bass.playOnce()+ hat.playOnce();
+          
+        return out;
+		
+        }
+	}
+
+	playButton.addEventListener("click", () => playAudio());
+
+
+	
+
+</script>
+</body>
+</html>
