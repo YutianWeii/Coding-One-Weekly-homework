@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <script src = "https://mimicproject.com/libs/nexusUI.js"></script>
+ <script src = "https://mimicproject.com/libs/maximilian.v.0.1.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Staatliches" rel="stylesheet"/>  
+<link rel="stylesheet" href="https://mimicproject.com/libs/maximilian-example.css" /> 
+<div>
+   <div id="title">Maximilian.js</div>
+   <div id="subtitle">homework of week one </div>
+   <div><button id="playButton">Play</button></div>
+</div>
+<div id="oscilloscope"></div>
+<div id="spectrogram"></div>
+</head>
+
+  
+<body>
+<script id = "myAudioScript">
+    var osc1 = new Maximilian.maxiOsc();
+    var osc2 = new Maximilian.maxiOsc();
+    var osc3 = new Maximilian.maxiOsc();
+    var osc4 = new Maximilian.maxiOsc();
+    var osc5 = new Maximilian.maxiOsc();
+    var osc6 = new Maximilian.maxiOsc();
+  
+    function play() {
+      return osc1.saw( osc2.saw(44) * 20 * osc5.saw(44)) + osc3.saw( osc4.saw(300)* 100 -osc6.saw(100))
+    }
+</script>
+  
+  
+    <script language="javascript">
+    let maxi;
+    initAudioEngine().then((dspEngine)=>{ 
+      maxi = dspEngine;
+      setup();
+      maxi.setAudioCode("myAudioScript");
+    })
+    
+      
+    let setup = ()=> {
+      maxi.hush()
+      Nexus.context = maxi.audioWorkletNode.context;
+      new Nexus.Oscilloscope('oscilloscope', {'size': [400,100]}).connect(maxi.audioWorkletNode);
+      new Nexus.Spectrogram('spectrogram', {'size': [400,100]}).connect(maxi.audioWorkletNode);
+      const playButton = document.getElementById('playButton');   
+      let playAudio = () => {
+        playButton.innerHTML  = maxi.play() ? "STOP":"PLAY"
+      }
+      playButton.addEventListener("click", () => playAudio());
+    }
+    </script>
+      
+</body>
+</html>
