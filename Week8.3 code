@@ -131,10 +131,10 @@ float line(vec2 pos, float funct) {
             vec3 rotationShape1 = vec3(1.,0.7,0.7) * rotation1;
             
             float rotation2 = rotation(vec2(0.225,0.5),1.,angle);
-            vec3 rotationShape2 = vec3(0.6,1.,0.2) * rotation2;
+            vec3 rotationShape2 = vec3(1.,0.7,0.7) * rotation2;
             
             float rotation3 = rotation(vec2(0.775,0.5),1.,angle);
-            vec3 rotationShape3 = vec3(0.6,1.,0.2) * rotation3;
+            vec3 rotationShape3 = vec3(1.,0.7,0.7) * rotation3;
             
             
         	gl_FragColor = vec4(rectangleOne + squareOne - squareTwo  + squareThree  - rotationShape1 + rotationShape2 + rotationShape3 ,1.0);
