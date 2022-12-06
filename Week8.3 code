@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			margin: 0px;
+			background-color: #E6E6FA;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		uniform highp float time;
+
+		void main() {
+	        gl_Position = vec4(position,1.0) ;                
+		}
+	</script>
+	<script id="fragmentShader" type="x-shader/x-fragment">
+		//============================================================
+		//PUT YOUR GLSL CODE HERE
+		//============================================================
+
+        precision mediump float;
+        
+        uniform vec2 resolution;
+        uniform vec2 mouse;
+        uniform highp float time;
+        #define M_PI 3.14159265358979323846
+        
+    
+ float square(vec2 pos, float size) {
+ 
+        	vec2 normCoords = gl_FragCoord.xy/resolution;
+        
+            float aspect = resolution.x/resolution.y;
+            size*=0.1;
+            if (length((normCoords.x-pos.x) * aspect)< size && length(normCoords.y-pos.y) < size) {
+    
+                return 1.0;
+            
+            } else {
+                
+                return 0.;
+            }
+        }
+    
+    
+float line(vec2 pos, float funct) {
+
+           return step(funct,pos.y)-step(funct,pos.y-0.01);
+        }
+        
+        
+ float circle(vec2 pos, float size) {
+            
+            size = 1./size;
+            size*=10.;
+            float aspect = resolution.x/resolution.y;
+            
+            vec2 normCoord = vec2(gl_FragCoord.x/(resolution.x) * aspect,gl_FragCoord.y/resolution.y);
+            
+            float colour = distance(normCoord,pos);
+            return smoothstep(colour * size, colour * size+0.02,1.);
+        }
+        
+        
+//rectangle
+        float rectangle(vec2 pos, float size){
+         vec2 normres = gl_FragCoord.xy / resolution.xy;         
+         size *= 0.1;            
+    	
+        if (length(normres.x-pos.x) < size && length(normres.y-pos.y) < size) {
+          return 1.;
+        }else {
+          return 0.;
+          }
+        }
+        
+        
+ //ROTATION
+      float rotation(vec2 pos, float size, float angle){
+        vec2 normCoords = gl_FragCoord.xy/resolution.xy;
+        float aspect = resolution.x/resolution.y;
+        size *= 0.1;
+        mat2 rotate = mat2( cos(angle), sin(angle),
+                                -sin(angle), cos(angle));
+       //vec2 center = vec2(resolution.x/2.,resolution.y/2.);
+       pos = normCoords-pos;
+       //vec2 pos = mod(rotation * (gl_FragCoord.xy - center), vec2(50.0)) - vec2(25.0);  
+       pos *= rotate;
+      // float dist_squared = dot(pos, pos);   
+       
+       if (length((pos.x) * aspect)< size && length(pos.y) < size) {
+    
+                return 1.0; 
+            
+            } else {
+                
+                return 0.; 
+            }
+      }
+         
+
+         
+              
+        void main(){
+            
+            float rectangle1 = rectangle(vec2(0.5,0.5),4.5 * abs(sin(time))); 
+            vec3 rectangleOne = vec3(1.,0.7,0.7) * rectangle1;
+            
+            float rect = square(vec2(0.5,0.5),3.25); 
+            //vec3 squareOne = vec3(1.,0.7,0.7) * rect; 
+            vec3 squareOne = vec3(1.,0.7 ,0.7 ) * rect; 
+            
+            float rect2 = square(vec2(0.5,0.5),2.5);
+            vec3 squareTwo = vec3(1.,0.7,0.7) * rect2;
+            
+            float circle1 = circle(vec2(0.8,0.78),0.2);            
+            vec3 circleOne = vec3(0.2,0.7,0.2) * circle1;
+                      
+            
+            float rect3 = square(vec2(1.8,0.6),0.3);
+            vec3 squareThree = vec3(0.9,0.8,0.6)* rect3;
+            
+            float angle = M_PI * cos(time * mouse.x);            
+            float rotation1 = rotation(vec2(0.5,0.5),1.,angle);
+            vec3 rotationShape1 = vec3(1.,0.7,0.7) * rotation1;
+            
+            float rotation2 = rotation(vec2(0.225,0.5),1.,angle);
+            vec3 rotationShape2 = vec3(0.6,1.,0.2) * rotation2;
+            
+            float rotation3 = rotation(vec2(0.775,0.5),1.,angle);
+            vec3 rotationShape3 = vec3(0.6,1.,0.2) * rotation3;
+            
+            
+        	gl_FragColor = vec4(rectangleOne + squareOne - squareTwo  + squareThree  - rotationShape1 + rotationShape2 + rotationShape3 ,1.0);
+     
+     
+           
+   
+        }
+		//============================================================
+		//END OF GLSL CODE
+		//============================================================
+	</script>
+	<script>
+		//change the resolution here. 1 is highest
+		var pixel_resolution = 2;
+		var stats;
+		var camera, scene, renderer;
+		var uniforms;
+		init();
+		animate();
+		function init() {
+
+			camera = new THREE.Camera();
+			camera.position.z = 1;
+			scene = new THREE.Scene();
+			var geometry = new THREE.PlaneBufferGeometry(2,2);
+			uniforms = { time: { type: 'f', value: 1.0 }, resolution: { type: 'v2', value: new THREE.Vector2() }, mouse: {type: "v2", value: new THREE.Vector2()}};
+			var material = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: document.getElementById('vertexShader').textContent, fragmentShader: document.getElementById('fragmentShader').textContent });
+			var mesh = new THREE.Mesh(geometry, material);
+			scene.add(mesh);
+			renderer = new THREE.WebGLRenderer();
+			//Hack here to change resolution 
+			renderer.setPixelRatio(window.devicePixelRatio / pixel_resolution);
+			document.body.appendChild(renderer.domElement);
+			onWindowResize();
+			window.addEventListener('resize', onWindowResize, false);
+	        window.addEventListener('mousemove', onMouseMove, false);
+
+		}
+		function onWindowResize(event) {
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			uniforms.resolution.value.x = renderer.domElement.width;
+			uniforms.resolution.value.y = renderer.domElement.height;
+
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			render();
+		}
+		function onMouseMove( event ) {
+        	uniforms.mouse.value.x = ( event.clientX / window.innerWidth );
+ 	        uniforms.mouse.value.y = ( 1-(event.clientY) / window.innerHeight
+ 	        );
+        }
+		function render() {
+			uniforms.time.value += 0.01;
+			renderer.render(scene, camera);
+		}
+	</script>
+</body>
+</html>
