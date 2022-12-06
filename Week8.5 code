@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  	<style>
+		body {
+			margin: 0px;
+			background-color: #000000;
+			overflow: hidden;
+		}
+	</style>
+       <script src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body, #container {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		uniform highp float time;
+      uniform vec2 mouse;
+        
+		mat4 scale = mat4(1.0,0.0,0.0,0.0,
+                  0.0,0.5,0.0,0.0,
+                  0.0,0.0,1.0,0.0,
+                  0.0,1.0,1.0,1.0);                 
+
+		
+		void main() {
+		   
+            float displacementHeight = 2.0;
+            float displacementY = sin(time + (position.x) * 5.) * displacementHeight;
+            
+            //my geometry
+            float displacementY2 = fract((position.x) * 3.) * displacementHeight + tan(position.x * time * 5.) * displacementHeight;
+	
+            vec4 modifiedPosition = vec4(position,1.0);          
+            
+	         modifiedPosition.y += displacementY2 * mouse.x ;
+         
+       
+	         gl_Position = modifiedPosition * scale ;                
+		}
+	</script>
+  
+	<script id="fragmentShader" type="x-shader/x-fragment">
+		//============================================================
+		//PUT YOUR GLSL CODE HERE
+		//============================================================
+
+        precision mediump float;
+        
+        uniform vec2 resolution;
+        uniform vec2 mouse;
+        uniform highp float time;
+        #define M_PI 3.14159265358979323846
+        
+        mat2 rotate2d (float _angle){
+        return mat2(cos(_angle), -sin(_angle),sin(_angle), cos(_angle));
+        }
+        
+        
+        void main(){
+  
+	       vec2 st = vec2(gl_FragCoord.xy / resolution);	
+          st.x *= resolution.x/resolution.y;
+                                
+          st = rotate2d(sin(time) * M_PI *0.5) * st;
+          
+          vec3 color = vec3(0.);
+          
+          color.r = sin(time * st.x )* 2.;
+          color.g = cos(fract(st.x) );
+          color.b = fract(st.y);
+                            
+                            
+          gl_FragColor = vec4( color.r, color.g, color.b, 1.0);
+       
+           }
+		//============================================================
+		//END OF GLSL CODE
+		//============================================================
+	</script>
+	<script>
+		//change the resolution here. 1 is highest
+		var pixel_resolution = 2;
+		var container, stats;
+		var camera, scene, renderer;
+		var uniforms;
+		init();
+		animate();
+		function init() {
+			camera = new THREE.Camera();
+			camera.position.z = 1.0;
+			scene = new THREE.Scene();
+			var geometry = new THREE.PlaneBufferGeometry(2,2,50,50);//size x, size y, dim x, dim y 
+			uniforms = { time: { type: 'f', value: 1.0 }, resolution: { type: 'v2', value: new THREE.Vector2() }, mouse: {type: "v2", value: new THREE.Vector2()}};
+			var material = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: document.getElementById('vertexShader').textContent, fragmentShader: document.getElementById('fragmentShader').textContent });
+			var mesh = new THREE.Mesh(geometry, material);
+			scene.add(mesh);
+			renderer = new THREE.WebGLRenderer();
+			//Hack here to change resolution 
+			renderer.setPixelRatio(window.devicePixelRatio / pixel_resolution);
+			document.body.appendChild(renderer.domElement);
+			onWindowResize();
+			window.addEventListener('resize', onWindowResize, false);
+	        window.addEventListener('mousemove', onMouseMove, false);
+
+		}
+		function onWindowResize(event) {
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			uniforms.resolution.value.x = renderer.domElement.width;
+			uniforms.resolution.value.y = renderer.domElement.height;
+
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			render();
+		}
+		function onMouseMove( event ) {
+        	uniforms.mouse.value.x = 2 * ( event.clientX / window.innerWidth );
+ 	        uniforms.mouse.value.y = 2 * ( 1-(event.clientY) / window.innerHeight
+ 	        );
+        }
+		function render() {
+			uniforms.time.value += 0.01;
+			renderer.render(scene, camera);
+		}
+	</script>
+
+          <script  language="javascript" type="text/javascript">
+            function save(blob, filename) {
+              const link = document.createElement('a')
+              link.style.display = 'block'
+              document.body.appendChild(link)
+
+              console.log(blob)
+
+              link.href = URL.createObjectURL(blob)
+              link.download = filename
+              link.click()
+
+            }
+            function saveString(text, filename) {
+              save(new Blob([text], { type: 'text/plain' }), filename)
+            }
+
+            function exportGLTF() {
+              const exporter = new GLTFExporter()
+              const params = {
+                trs: false,
+                onlyVisible: true,
+                truncateDrawRange: true,
+                binary: false,
+                maxTextureSize: 4096,
+              }
+
+              exporter.parse(
+                scene,
+                // called when the gltf has been generated
+                function (gltf) {
+                  const output = JSON.stringify(gltf, null, 2)
+                  console.log(output)
+                  saveString(output, 'scene.gltf')
+                },
+                // called when there is an error in the generation
+                function (error) {
+                  console.log('An error happened')
+                },
+                params
+              )
+            }
+            exportGLTF()
+          </script>
+        </body>
+</html>
