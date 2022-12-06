@@ -5,12 +5,12 @@ Hi! I’m Yutian Wei from UAL CCI Msc Creative Computing, I will show you my wee
 
 ReadMe>>
 
-Week 1   Sound
+Week1   Sound
 
 https://mimicproject.com/code/a9756459-2700-91f0-fb20-6bbbfec6403d
 
 
-Week 2   Samples and Clocks
+Week2   Samples and Clocks
 
 https://mimicproject.com/code/dc2c7d00-8e82-a161-69f1-00b8f7003fdc
 
